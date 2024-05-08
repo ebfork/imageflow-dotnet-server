@@ -56,7 +56,7 @@ namespace Imageflow.Server.ExampleDockerDiskCache
                 //.SetLicenseKey(EnforceLicenseWith.Http402Error, "license key here")
                 
                 // Remove the following if you don't have a wwwroot folder and want to serve images from it
-                //.SetMapWebRoot(true)
+                .SetMapWebRoot(true)
                 
                 // Change the following line to map a different virtual path to a physical folder
                 .MapPath("/images", Path.Combine(Env.ContentRootPath, "images"))
@@ -97,22 +97,14 @@ namespace Imageflow.Server.ExampleDockerDiskCache
                     .SetMaxEncodeSize(new FrameSizeLimit(8000, 8000, 20)))
             );
             
+            app.UseStaticFiles();
             app.UseRouting();
-
+            //app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
-                // You can remove this endpoint to disable the sample image
-                endpoints.MapGet("/", async context =>
-                {
-                    context.Response.ContentType = "text/html";
-                    await context.Response.WriteAsync("<img src=\"fire-umbrella-small.jpg?width=450\" />");
-                });
-                
-                endpoints.MapGet("/error", async context =>
-                {
-                    context.Response.ContentType = "text/html";
-                    await context.Response.WriteAsync("<p>An error has occurred while processing the request.</p>");
-                });
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

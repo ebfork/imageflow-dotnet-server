@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Imageflow.Server.Storage.RemoteReader;
 
 namespace Imageflow.Server.ExampleDockerDiskCache
 {
@@ -23,6 +24,13 @@ namespace Imageflow.Server.ExampleDockerDiskCache
         
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpClient();
+            services.AddImageflowRemoteReaderService(new RemoteReaderServiceOptions
+                {
+                    SigningKey = Environment.GetEnvironmentVariable("SIGNING_KEY")
+                }
+                .AddPrefix("/u/"));
+            
             services.AddImageflowHybridCache(new HybridCacheOptions(Path.Combine(Env.ContentRootPath, "imageflow_cache"))
             {
                 CacheSizeLimitInBytes = (long)1 * 1024 * 1024 * 1024 //1 GiB
@@ -44,11 +52,11 @@ namespace Imageflow.Server.ExampleDockerDiskCache
 
             app.UseImageflow(new ImageflowMiddlewareOptions()
                 // Only use this if this is a legitimate AGPL-compliant project, otherwise uncomment .SetLicenseKey
-                .SetMyOpenSourceProjectUrl("https://please-support-imageflow-with-a-license.com")
+                .SetMyOpenSourceProjectUrl("https://github.com/ebfork/imageflow-dotnet-server/tree/main/examples/Imageflow.Server.ExampleDockerDiskCache")
                 //.SetLicenseKey(EnforceLicenseWith.Http402Error, "license key here")
                 
                 // Remove the following if you don't have a wwwroot folder and want to serve images from it
-                .SetMapWebRoot(true)
+                //.SetMapWebRoot(true)
                 
                 // Change the following line to map a different virtual path to a physical folder
                 .MapPath("/images", Path.Combine(Env.ContentRootPath, "images"))
